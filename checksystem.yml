@@ -1,0 +1,14 @@
+---
+- hosts: serverpool
+  remote_user: raisal
+  gather_facts: true
+  vars:
+  tasks:
+    - name: Checking CPU Percentage
+      shell: " ps -eo pcpu,pid,user,args |awk '{ sum += $0; } END { print sum; }' "
+      register: cpuper
+      ignore_errors: True
+  
+    - debug: msg="CPU usage is above 30% and Memory Usage is above 50% on server  {{ansible_hostname}}"
+      when: 
+        - cpuper.stdout | int > 30 and ((ansible_memory_mb.real.used / ansible_memory_mb.real.total ) * 100) | int > 50
